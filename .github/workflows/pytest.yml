@@ -1,0 +1,139 @@
+name: Run Tests
+
+on:
+  pull_request:
+    branches:
+      - main  
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.11  
+
+    - name: Install dependencies
+      run: |
+        pip install pytest
+        pip install pytest-mock
+        pip install pytest-asyncio
+
+
+    # - name: Create Logs Directory
+    #   run: mkdir -p ${{ github.workspace }}/logs
+
+    
+    # - name: Load .env file
+    #   run: |
+    #     pip install python-dotenv
+    #     dotenv run python app/UnitTest/controller/test_script.py
+
+    # - name: Run pytest
+    #   run: |
+    #     pytest > result.txt
+
+    # - name: Debug directory contents
+    #   run: |
+    #     pwd 
+    
+
+    # - name: Run pytest and calculate failure percentage
+    #   run: |
+    #     python3 -m pytest | tee test_results.txt
+    #     ls
+
+
+    # - name: Run pytest and calculate failure percentage
+    #   id: pytest
+    #   run: |
+    #     python3 -m pytest | tee test_results.txt
+    #     ls
+    #     FAILED_TESTS=$(grep -oP "(\d+) failed" test_results.txt | cut -d' ' -f1)
+    #     TOTAL_TESTS=$(grep -oP "(\d+) passed" test_results.txt | cut -d' ' -f1)
+    #     if [ -z "$TOTAL_TESTS" ]; then
+    #       echo "No tests were executed. Exiting..."
+    #       exit 1
+    #     fi
+    #     FAILURE_PERCENTAGE=$((FAILED_TESTS * 100 / TOTAL_TESTS))
+    #     echo "Failed tests: $FAILED_TESTS"
+    #     echo "Total tests: $TOTAL_TESTS"
+    #     echo "Failure Percentage: $FAILURE_PERCENTAGE%"
+    #     echo "::set-output name=failure_percentage::${FAILURE_PERCENTAGE}"
+
+
+
+    #  #sachin
+    # - name: Run pytest and calculate failure percentage
+    #   id: pytest
+    #   run: |
+    #     python3 -m pytest | tee test_results.txt
+    #     ls
+    #     FAILED_TESTS=$(grep -oP "(\d+) failed" test_results.txt | cut -d' ' -f1)
+    #     TOTAL_TESTS=$(grep -oP "(\d+) passed" test_results.txt | awk '{print $1}')
+    #     echo "Failed tests: $FAILED_TESTS"
+    #     echo "Total tests: $TOTAL_TESTS"
+    #     if [ -z "$TOTAL_TESTS" ]; then
+    #       echo "No tests were executed. Exiting..."
+    #       exit 1
+    #     fi
+    #     FAILURE_PERCENTAGE=$((FAILED_TESTS * 100 / TOTAL_TESTS))
+    #     echo "Failure Percentage: $FAILURE_PERCENTAGE%"
+    #     echo "::set-output name=failure_percentage::${FAILURE_PERCENTAGE}"
+
+
+
+    - name: Run pytest and calculate failure percentage
+      id: pytest
+      run: |
+        pytest app/test_main.py | tee test_results.txt
+        ls
+        FAILED_TESTS=$(grep -oP "(\d+) failed" test_results.txt | cut -d' ' -f1)
+        PASSED_TESTS=$(grep -oP "(\d+) passed" test_results.txt | awk '{print $1}')
+        TOTAL_TESTS=$((FAILED_TESTS + PASSED_TESTS))
+        echo "Failed tests: $FAILED_TESTS"
+        echo "Passed tests: $PASSED_TESTS"
+        echo "Total tests: $TOTAL_TESTS"
+        if [ -z "$PASSED_TESTS" ]; then
+          echo "No tests were executed. Exiting..."
+          exit 1
+        fi
+        FAILURE_PERCENTAGE=$((FAILED_TESTS * 100 / (FAILED_TESTS + PASSED_TESTS)))
+        echo "Failure Percentage: $FAILURE_PERCENTAGE%"
+        echo "::set-output name=failure_percentage::${FAILURE_PERCENTAGE}"
+        
+
+    #sachin
+    - name: Check failure percentage
+      run: |
+        FAILURE_PERCENTAGE=${{ steps.pytest.outputs.failure_percentage }}
+        if [ $FAILURE_PERCENTAGE -ge 60 ]; then
+          echo "Test failure percentage exceeds 60%. Aborting further steps."
+          
+          exit 1
+        else
+          echo "Test failure percentage is acceptable. Proceeding with further steps."
+        fi
+
+        
+      #sachinbhati
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
