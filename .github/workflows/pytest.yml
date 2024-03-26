@@ -24,7 +24,7 @@ jobs:
         pip install pytest
         pip install pytest-mock
         pip install pytest-asyncio
-        pip installl uvicorn
+        pip install uvicorn
         pip install httpx
         pip install fastapi
         pip install python-dotenv
